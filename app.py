@@ -5,7 +5,7 @@ import streamlit as st
 # Page Config
 st.set_page_config(
     page_title="Jakarta CRM Dashboard",
-    page_icon="🏙️",
+    page_icon="",
     layout="wide"
 )
 
@@ -60,8 +60,7 @@ BULAN_ORDER = ['January','February','March','April','May','June',
 
 # Filter (sidebar)
 with st.sidebar:
-    st.markdown("## 🔍 Filter Data")
-    st.markdown("---")
+    st.markdown("## Filter Data")
 
     sel_tahun = st.multiselect(
         "Tahun", sorted(df_full['tahun'].unique()),
@@ -85,7 +84,7 @@ df = df_full[
 
 # Header
 st.markdown("""
-<div style="background:linear-gradient(135deg,#1A3A5C,#2563A8);
+<div style="background:linear(#2563A8);
             padding:20px 28px; border-radius:12px; margin-bottom:20px;">
   <h1 style="color:white; margin:0; font-size:1.6rem;">
     Jakarta CRM Complaint Dashboard
