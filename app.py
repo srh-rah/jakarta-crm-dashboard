@@ -101,7 +101,7 @@ st.markdown('<div class="section-header">Overview</div>', unsafe_allow_html=True
 
 c1, c2, c3 = st.columns(3)
 c1.metric("Total Pengaduan",         f"{len(df):,}")
-c2.metric("Rata-rata Response Time", f"{df['response_time'].mean():.1f} hari")
+c2.metric("Rata-rata Waktu Respon", f"{df['response_time'].mean():.1f} hari")
 c3.metric("Jumlah SKPD",            f"{df['skpd'].nunique()}")
 
 st.markdown("---")
@@ -145,7 +145,7 @@ st.markdown('<div class="section-header">SKPD Performance</div>', unsafe_allow_h
 col3, col4 = st.columns(2)
 
 with col3:
-    st.subheader("Top 10 SKPD by Volume")
+    st.subheader("Top 10 SKPD Berdasarkan Jumlah Pengaduan")
     top_skpd = df['skpd'].value_counts().head(10).reset_index()
     top_skpd.columns = ['skpd', 'jumlah']
     fig3 = px.bar(top_skpd.sort_values('jumlah'),
@@ -159,7 +159,7 @@ with col3:
     st.plotly_chart(fig3, use_container_width=True)
 
 with col4:
-    st.subheader("Kategori Response Time Terlama")
+    st.subheader("Kategori Waktu Respon Terlama")
     resp_kat = (df[df['response_time'] > 0]
                 .groupby('kategori')['response_time']
                 .agg(['mean','count']).reset_index())
