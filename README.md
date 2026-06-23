@@ -1,7 +1,6 @@
 # Jakarta CRM Complaint Dashboard
 Analisis pengaduan warga Jakarta berbasis data CRM Diskominfotik DKI Jakarta (2019–2020)
-
-Dashboard [Jakarta CRM Dashboard](https://jakarta-crm-dashboard-urcllpasrtdqm9hxbnaecm.streamlit.app)
+[Jakarta CRM Dashboard](https://jakarta-crm-dashboard-urcllpasrtdqm9hxbnaecm.streamlit.app)
 ---
 ### About This Project
 Short description: siapa target audience-nya, tujuan dashboard, konteks KP.
