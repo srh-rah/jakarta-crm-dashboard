@@ -15,6 +15,18 @@ st.markdown("""
     padding: 16px 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
+[data-testid="metric-container"] label {
+    color: inherit !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+[data-testid="metric-container"] [data-testid="stMetricValue"] {
+    color: inherit !important;
+    font-size: 1.9rem !important;
+    font-weight: 700 !important;
+}
 .section-header {
     background: #1a1a68;
     color: #dadae7;
@@ -27,6 +39,22 @@ st.markdown("""
 .stMultiSelect span[data-baseweb="tag"] {
     background-color: #1a1a68 !important;
     color: #dadae7 !important;
+}
+[data-testid="stSlider"] [role="slider"] {
+    background-color: #1a1a68 !important;
+}
+
+/* Fix jarak sidebar */
+section[data-testid="stSidebar"] > div {
+    padding-top: 1.5rem !important;
+}
+section[data-testid="stSidebar"] .block-container {
+    padding-top: 0 !important;
+}
+
+/* Hapus anchor link di subheader */
+h2 a, h3 a {
+    display: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -51,8 +79,21 @@ def make_layout(height=420):
         margin=dict(l=0, r=0, t=10, b=0),
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(color=None),
     )
+
+PLOTLY_CONFIG = dict(
+    displaylogo=False,
+    modeBarButtonsToRemove=[
+        'pan2d','select2d','lasso2d','zoomIn2d','zoomOut2d',
+        'autoScale2d','hoverClosestCartesian','hoverCompareCartesian',
+        'toggleSpikelines','zoom3d','pan3d','orbitRotation',
+        'tableRotation','resetCameraDefault3d','resetCameraLastSave3d',
+        'hoverClosest3d','zoomInGeo','zoomOutGeo','resetGeo',
+        'hoverClosestGeo','hoverClosestGl2d','hoverClosestPie',
+        'toggleHover','resetViews','sendDataToCloud','toggleFullScreen'
+    ],
+    modeBarButtonsToAdd=[],
+)
 
 with st.sidebar:
     st.markdown("## Filter Data")
@@ -96,13 +137,12 @@ c2.metric("Rata-rata Waktu Respon", f"{df['response_time'].mean():.1f} hari")
 c3.metric("Jumlah SKPD",           f"{df['skpd'].nunique()}")
 
 st.markdown("---")
-
 st.markdown('<div class="section-header">Complaint Analysis</div>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Top 10 Kategori Pengaduan")
+    st.markdown("#### Top 10 Kategori Pengaduan")
     top_kat = df['kategori'].value_counts().head(10).reset_index()
     top_kat.columns = ['kategori', 'jumlah']
     fig = px.bar(top_kat.sort_values('jumlah'),
@@ -111,10 +151,10 @@ with col1:
                  color_continuous_scale=['#A8C8E8','#1a1a68'],
                  labels={'jumlah':'Jumlah', 'kategori':''})
     fig.update_layout(coloraxis_showscale=False, **make_layout())
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
 
 with col2:
-    st.subheader("Tren Pengaduan per Bulan")
+    st.markdown("#### Tren Pengaduan per Bulan")
     tren = df.groupby(['tahun','nama_bulan']).size().reset_index(name='jumlah')
     tren['nama_bulan'] = pd.Categorical(tren['nama_bulan'],
                                         categories=BULAN_ORDER, ordered=True)
@@ -124,16 +164,15 @@ with col2:
                    color_discrete_map={'2019':'#4A90D9','2020':'#1a1a68'},
                    labels={'nama_bulan':'','jumlah':'Jumlah','tahun':'Tahun'})
     fig2.update_layout(**make_layout())
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, use_container_width=True, config=PLOTLY_CONFIG)
 
 st.markdown("---")
-
 st.markdown('<div class="section-header">SKPD Performance</div>', unsafe_allow_html=True)
 
 col3, col4 = st.columns(2)
 
 with col3:
-    st.subheader("Top 10 SKPD by Volume")
+    st.markdown("#### Top 10 SKPD by Volume")
     top_skpd = df['skpd'].value_counts().head(10).reset_index()
     top_skpd.columns = ['skpd', 'jumlah']
     fig3 = px.bar(top_skpd.sort_values('jumlah'),
@@ -142,10 +181,10 @@ with col3:
                   color_continuous_scale=['#A8C8E8','#1a1a68'],
                   labels={'jumlah':'Jumlah','skpd':''})
     fig3.update_layout(coloraxis_showscale=False, **make_layout())
-    st.plotly_chart(fig3, use_container_width=True)
+    st.plotly_chart(fig3, use_container_width=True, config=PLOTLY_CONFIG)
 
 with col4:
-    st.subheader("Kategori Waktu Respon Terlama")
+    st.markdown("#### Kategori Waktu Respon Terlama")
     resp_kat = (df[df['response_time'] > 0]
                 .groupby('kategori')['response_time']
                 .agg(['mean','count']).reset_index())
@@ -158,16 +197,15 @@ with col4:
                   color_continuous_scale=['#A8C8E8','#E05252'],
                   labels={'avg_response':'Rata-rata Hari','kategori':''})
     fig4.update_layout(coloraxis_showscale=False, **make_layout())
-    st.plotly_chart(fig4, use_container_width=True)
+    st.plotly_chart(fig4, use_container_width=True, config=PLOTLY_CONFIG)
 
 st.markdown("---")
-
 st.markdown('<div class="section-header">Analisis Waktu Respon</div>', unsafe_allow_html=True)
 
 col5, col6 = st.columns(2)
 
 with col5:
-    st.subheader("Kecepatan Penyelesaian Pengaduan")
+    st.markdown("#### Kecepatan Penyelesaian Pengaduan")
     bins = pd.cut(df['response_time'],
                   bins=[-1,0,1,7,30,9999],
                   labels=['0 hari','1 hari','2–7 hari','8–30 hari','> 30 hari'])
@@ -180,10 +218,10 @@ with col5:
                   text='jumlah')
     fig5.update_traces(textposition='outside')
     fig5.update_layout(showlegend=False, **make_layout())
-    st.plotly_chart(fig5, use_container_width=True)
+    st.plotly_chart(fig5, use_container_width=True, config=PLOTLY_CONFIG)
 
 with col6:
-    st.subheader("Heatmap Pengaduan: Bulan x Kategori")
+    st.markdown("#### Heatmap Pengaduan: Bulan x Kategori")
     top8 = df['kategori'].value_counts().head(8).index.tolist()
     df_hm = df[df['kategori'].isin(top8)].copy()
     pivot = (df_hm.groupby(['nama_bulan','kategori'])
@@ -196,7 +234,7 @@ with col6:
                      aspect='auto', text_auto=True)
     fig6.update_layout(**make_layout())
     fig6.update_xaxes(tickangle=30)
-    st.plotly_chart(fig6, use_container_width=True)
+    st.plotly_chart(fig6, use_container_width=True, config=PLOTLY_CONFIG)
 
 st.markdown("---")
 st.markdown(
