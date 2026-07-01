@@ -2,46 +2,91 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-st.set_page_config(
-    page_title="Jakarta CRM Dashboard",
-    layout="wide"
-)
+st.set_page_config(page_title="Jakarta CRM Dashboard", layout="wide")
 
-st.markdown("""
+THEMES = {
+    "Navy (Default)": {
+        "primary":    "#1a1a68",
+        "text":       "#dadae7",
+        "bar_scale":  ["#A8C8E8", "#1a1a68"],
+        "line_2019":  "#4A90D9",
+        "line_2020":  "#1a1a68",
+        "sidebar_bg": "#F0F5FA",
+        "metric_val": "#1a1a68",
+    },
+    "Forest Green": {
+        "primary":    "#1a4a2e",
+        "text":       "#e0ead5",
+        "bar_scale":  ["#a8d5b5", "#1a4a2e"],
+        "line_2019":  "#4a9d6f",
+        "line_2020":  "#1a4a2e",
+        "sidebar_bg": "#f0f5f1",
+        "metric_val": "#1a4a2e",
+    },
+    "Slate Gray": {
+        "primary":    "#2d3748",
+        "text":       "#e2e8f0",
+        "bar_scale":  ["#a0aec0", "#2d3748"],
+        "line_2019":  "#718096",
+        "line_2020":  "#2d3748",
+        "sidebar_bg": "#f7fafc",
+        "metric_val": "#2d3748",
+    },
+    "Maroon": {
+        "primary":    "#6b1a1a",
+        "text":       "#f0dada",
+        "bar_scale":  ["#e8a8a8", "#6b1a1a"],
+        "line_2019":  "#c05252",
+        "line_2020":  "#6b1a1a",
+        "sidebar_bg": "#fdf5f5",
+        "metric_val": "#6b1a1a",
+    },
+}
+
+with st.sidebar:
+    st.markdown("## Filter Data")
+    st.markdown("---")
+    sel_tema = st.selectbox("Tema Warna", list(THEMES.keys()))
+
+T = THEMES[sel_tema]
+P = T["primary"]
+TX = T["text"]
+
+st.markdown(f"""
 <style>
-[data-testid="metric-container"] {
+[data-testid="metric-container"] {{
     background: #ffffff;
     border: 1px solid #D0DCE8;
     border-radius: 10px;
     padding: 16px 20px;
-    box-shadow: 0 2px 8px rgba(26,26,104,0.07);
-}
-[data-testid="metric-container"] label {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}}
+[data-testid="metric-container"] label {{
     color: #5A7A9A !important;
     font-size: 0.8rem !important;
     font-weight: 600 !important;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-}
-[data-testid="metric-container"] [data-testid="stMetricValue"] {
-    color: #1a1a68 !important;
+}}
+[data-testid="metric-container"] [data-testid="stMetricValue"] {{
+    color: {P} !important;
     font-size: 1.9rem !important;
     font-weight: 700 !important;
-}
-.section-header {
-    background: #1a1a68;
-    color: #dadae7;
+}}
+.section-header {{
+    background: {P};
+    color: {TX};
     padding: 9px 16px;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: 700;
     margin: 12px 0;
-}
-section[data-testid="stSidebar"] { background-color: #F0F5FA; }
-.stMultiSelect span[data-baseweb="tag"] {
-    background-color: #1a1a68 !important;
-    color: #dadae7 !important;
-}
+}}
+section[data-testid="stSidebar"] {{ background-color: {T["sidebar_bg"]}; }}
+.stMultiSelect span[data-baseweb="tag"] {{
+    background-color: {P} !important;
+    color: {TX} !important;
+}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -60,7 +105,6 @@ BULAN_ORDER = ['January','February','March','April','May','June',
                'July','August','September','October','November','December']
 
 with st.sidebar:
-    st.markdown("## Filter Data")
     st.markdown("---")
     sel_tahun = st.multiselect(
         "Tahun", sorted(df_full['tahun'].unique()),
@@ -80,10 +124,10 @@ df = df_full[
     df_full['bulan'].between(sel_bulan[0], sel_bulan[1])
 ].copy()
 
-st.markdown("""
-<div style="background:#1a1a68; padding:20px 28px; border-radius:12px; margin-bottom:20px;">
-  <h1 style="color:#dadae7; margin:0; font-size:1.6rem;">Jakarta CRM Complaint Dashboard</h1>
-  <p style="color:#dadae7; margin:4px 0 0; font-size:0.88rem; opacity:0.8;">
+st.markdown(f"""
+<div style="background:{P}; padding:20px 28px; border-radius:12px; margin-bottom:20px;">
+  <h1 style="color:{TX}; margin:0; font-size:1.6rem;">Jakarta CRM Complaint Dashboard</h1>
+  <p style="color:{TX}; margin:4px 0 0; font-size:0.88rem; opacity:0.8;">
     Analisis pengaduan warga · Diskominfotik DKI Jakarta · 2019–2020
   </p>
 </div>
@@ -96,12 +140,11 @@ if df.empty:
 st.markdown('<div class="section-header">Overview</div>', unsafe_allow_html=True)
 
 c1, c2, c3 = st.columns(3)
-c1.metric("Total Pengaduan",         f"{len(df):,}")
+c1.metric("Total Pengaduan",        f"{len(df):,}")
 c2.metric("Rata-rata Waktu Respon", f"{df['response_time'].mean():.1f} hari")
-c3.metric("Jumlah SKPD",            f"{df['skpd'].nunique()}")
+c3.metric("Jumlah SKPD",           f"{df['skpd'].nunique()}")
 
 st.markdown("---")
-
 st.markdown('<div class="section-header">Complaint Analysis</div>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
@@ -112,9 +155,8 @@ with col1:
     top_kat.columns = ['kategori', 'jumlah']
     fig = px.bar(top_kat.sort_values('jumlah'),
                  x='jumlah', y='kategori', orientation='h',
-                 color='jumlah',
-                 color_continuous_scale=['#A8C8E8','#1a1a68'],
-                 labels={'jumlah':'Jumlah', 'kategori':''})
+                 color='jumlah', color_continuous_scale=T["bar_scale"],
+                 labels={'jumlah':'Jumlah','kategori':''})
     fig.update_layout(coloraxis_showscale=False, height=420,
                       margin=dict(l=0,r=0,t=10,b=0),
                       paper_bgcolor='white', plot_bgcolor='#F7F9FC')
@@ -126,16 +168,14 @@ with col2:
     tren['nama_bulan'] = pd.Categorical(tren['nama_bulan'],
                                         categories=BULAN_ORDER, ordered=True)
     tren = tren.sort_values(['tahun','nama_bulan'])
-    fig2 = px.line(tren, x='nama_bulan', y='jumlah', color='tahun',
-                   markers=True,
-                   color_discrete_map={'2019':'#4A90D9','2020':'#1a1a68'},
+    fig2 = px.line(tren, x='nama_bulan', y='jumlah', color='tahun', markers=True,
+                   color_discrete_map={'2019': T["line_2019"], '2020': T["line_2020"]},
                    labels={'nama_bulan':'','jumlah':'Jumlah','tahun':'Tahun'})
     fig2.update_layout(height=420, margin=dict(l=0,r=0,t=10,b=0),
                        paper_bgcolor='white', plot_bgcolor='#F7F9FC')
     st.plotly_chart(fig2, use_container_width=True)
 
 st.markdown("---")
-
 st.markdown('<div class="section-header">SKPD Performance</div>', unsafe_allow_html=True)
 
 col3, col4 = st.columns(2)
@@ -146,8 +186,7 @@ with col3:
     top_skpd.columns = ['skpd', 'jumlah']
     fig3 = px.bar(top_skpd.sort_values('jumlah'),
                   x='jumlah', y='skpd', orientation='h',
-                  color='jumlah',
-                  color_continuous_scale=['#A8C8E8','#1a1a68'],
+                  color='jumlah', color_continuous_scale=T["bar_scale"],
                   labels={'jumlah':'Jumlah','skpd':''})
     fig3.update_layout(coloraxis_showscale=False, height=420,
                        margin=dict(l=0,r=0,t=10,b=0),
@@ -165,7 +204,7 @@ with col4:
     top_lambat = resp_kat.nlargest(10,'avg_response').sort_values('avg_response')
     fig4 = px.bar(top_lambat, x='avg_response', y='kategori', orientation='h',
                   color='avg_response',
-                  color_continuous_scale=['#A8C8E8','#E05252'],
+                  color_continuous_scale=[T["bar_scale"][0], '#E05252'],
                   labels={'avg_response':'Rata-rata Hari','kategori':''})
     fig4.update_layout(coloraxis_showscale=False, height=420,
                        margin=dict(l=0,r=0,t=10,b=0),
@@ -173,7 +212,6 @@ with col4:
     st.plotly_chart(fig4, use_container_width=True)
 
 st.markdown("---")
-
 st.markdown('<div class="section-header">Analisis Waktu Respon</div>', unsafe_allow_html=True)
 
 col5, col6 = st.columns(2)
@@ -187,7 +225,8 @@ with col5:
     resp_bins.columns = ['kategori_waktu','jumlah']
     fig5 = px.bar(resp_bins, x='kategori_waktu', y='jumlah',
                   color='kategori_waktu',
-                  color_discrete_sequence=['#1a1a68','#2563A8','#4A90D9','#E8B84B','#E05252'],
+                  color_discrete_sequence=[P, T["line_2019"], T["line_2020"],
+                                           '#E8B84B', '#E05252'],
                   labels={'kategori_waktu':'','jumlah':'Jumlah Pengaduan'},
                   text='jumlah')
     fig5.update_traces(textposition='outside')
@@ -215,10 +254,10 @@ with col6:
 
 st.markdown("---")
 st.markdown(
-    "<div style='text-align:center; color:#8A9BB0; font-size:0.8rem;'>"
-    "Jakarta CRM Dashboard · Data: "
-    "<a href='https://data.jakarta.go.id' style='color:#1a1a68;'>data.jakarta.go.id</a>"
-    " · Built with Streamlit"
-    "</div>",
+    f"<div style='text-align:center; color:#8A9BB0; font-size:0.8rem;'>"
+    f"Jakarta CRM Dashboard · Data: "
+    f"<a href='https://data.jakarta.go.id' style='color:{P};'>data.jakarta.go.id</a>"
+    f" · Built with Streamlit"
+    f"</div>",
     unsafe_allow_html=True
 )
